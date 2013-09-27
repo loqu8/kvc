@@ -66,7 +66,7 @@ namespace Loqu8.KVC
 				if (target is IDictionary) {
 					var dict = (IDictionary)target;
 					if (!dict.Contains (key))
-						return;				
+						return null;				
 
 					target = dict [key];
 					continue;
