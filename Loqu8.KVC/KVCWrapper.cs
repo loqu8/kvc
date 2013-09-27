@@ -10,11 +10,24 @@ namespace Loqu8.KVC
 	{
 		private readonly Object _t;
 		private readonly Type _type;
+		private readonly bool isNotifyPropertyChanged;
 
 		public KVCWrapper (Object t)
 		{
 			_t = t;
 			_type = t.GetType ();
+
+			if (_t is INotifyPropertyChanged) {
+				isNotifyPropertyChanged = true;
+				var npc = (INotifyPropertyChanged)_t;
+				npc.PropertyChanged += HandlePropertyChanged;
+			}
+		}
+
+		void HandlePropertyChanged (object sender, PropertyChangedEventArgs e)
+		{
+			WillChangeValue (e.PropertyName);
+			DidChangeValue (e.PropertyName);
 		}
 	
 		public override void SetValueForKeyPath (NSObject nsValue, NSString nsKeyPath)
@@ -40,9 +53,9 @@ namespace Loqu8.KVC
 					return;
 
 				if (i == keys.Length - 1) {
-					WillChangeValue (keys[0]);
-					info.SetValue (target, nsValue.ToObject (info.PropertyType), null);
-					DidChangeValue (keys[0]);
+					if (i > 0 || !isNotifyPropertyChanged) WillChangeValue (keys[0]);		// inefficient but oh well... beer first
+					info.SetValue (target, nsValue.ToObject (info.PropertyType), null);				
+					if (i > 0 || !isNotifyPropertyChanged) DidChangeValue (keys[0]);
 				} else {
 					target = info.GetValue (target, null);
 				}
@@ -51,9 +64,11 @@ namespace Loqu8.KVC
 
 		public override void SetValueForKey (NSObject value, NSString key)
 		{
-			// should not be called
+			// should never be called
 			var info = _type.GetProperty (key.ToString ());
+			if (!isNotifyPropertyChanged) WillChangeValue (key);		// inefficient but oh well... beer first
 			info.SetValue (_t, value.ToObject(info.PropertyType), null);
+			if (!isNotifyPropertyChanged) DidChangeValue (key);
 		}
 
 		public override NSObject ValueForKeyPath (NSString nsKeyPath)
