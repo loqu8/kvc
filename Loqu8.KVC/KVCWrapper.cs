@@ -2,6 +2,7 @@ using System;
 using MonoMac.Foundation;
 using System.Reflection;
 using System.ComponentModel;
+using System.Collections;
 
 namespace Loqu8.KVC
 {
@@ -25,8 +26,19 @@ namespace Loqu8.KVC
 			PropertyInfo info;
 			for (int i = 0; i < keys.Length; i++) {
 				// Todo: target could be an IDictionary, IEnumerable or array, in which case access could be different, what if we get things like First/Last
+				if (target is IDictionary) {
+					var dict = (IDictionary)target;
+					if (!dict.Contains (keys [i]))
+						return;				
+
+					target = dict [keys [i]];
+					continue;
+				}
 
 				info = target.GetType ().GetProperty (keys[i]);
+				if (info == null)
+					return;
+
 				if (i == keys.Length - 1) {
 					WillChangeValue (keys[0]);
 					info.SetValue (target, nsValue.ToObject (info.PropertyType), null);
@@ -51,6 +63,15 @@ namespace Loqu8.KVC
 
 			Object target = _t;
 			foreach (var key in keys) {
+				if (target is IDictionary) {
+					var dict = (IDictionary)target;
+					if (!dict.Contains (key))
+						return;				
+
+					target = dict [key];
+					continue;
+				}
+
 				target = ValueForKey (target, key);
 			}
 			return target.ToNSObject ();
