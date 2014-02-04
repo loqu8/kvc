@@ -6,7 +6,7 @@
 		<title>Key-value collection for XamMac</title>
 		<authors>Loqu8</authors>
 		<owners>Tim Uy</owners>
-		<requireLicenseAcceptance>true</requireLicenseAcceptance>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>This package contains the XamMac key-value implementation</description>
 	</metadata>
 	<files>		
