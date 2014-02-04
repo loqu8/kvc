@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Loqu8.KVC.Mac</id>
+		<version>1.1.0</version>
+		<title>Key-value collection for Mac</title>
+		<authors>Loqu8</authors>
+		<owners>Tim Uy</owners>
+		<requireLicenseAcceptance>true</requireLicenseAcceptance>
+		<description>This package contains the Mac key-value implementation</description>
+	</metadata>
+	<files>		
+		<!-- mac -->
+		<file src="..\bin\Release\Loqu8.KVC.Mac.dll" target="lib\net45\Loqu8.KVC.Mac.dll" />
+	</files>
+</package>
