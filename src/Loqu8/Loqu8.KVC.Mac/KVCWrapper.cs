@@ -68,13 +68,18 @@ namespace Loqu8.KVC.Mac
             }
         }
 
-        public override void SetValueForKey(NSObject value, NSString key)
+		public override void SetValueForKey(NSObject value, NSString nsKey)
         {
+			var key = nsKey.ToString ();
+			if (key.Contains (".")) {
+				SetValueForKeyPath (value, nsKey);
+			}
+				
             // should never be called
-            var info = _type.GetProperty(key.ToString());
-            if (!_isNotifyPropertyChanged) WillChangeValue(key);		// inefficient but oh well... beer first
+			var info = _type.GetProperty(key);
+            if (!_isNotifyPropertyChanged) WillChangeValue(nsKey);		// inefficient but oh well... beer first
             info.SetValue(_t, value.ToObject(info.PropertyType), null);
-            if (!_isNotifyPropertyChanged) DidChangeValue(key);
+            if (!_isNotifyPropertyChanged) DidChangeValue(nsKey);
         }
 
         public override NSObject ValueForKeyPath(NSString nsKeyPath)
@@ -102,7 +107,12 @@ namespace Loqu8.KVC.Mac
 
         public override NSObject ValueForKey(NSString nsKey)
         {
-            var target = ValueForKey(_t, nsKey.ToString());
+			var key = nsKey.ToString ();
+			if (key.Contains (".")) {
+				return ValueForKeyPath (nsKey);
+			}
+
+			var target = ValueForKey(_t, key);		
             return target.ToNSObject();
         }
 
@@ -110,8 +120,10 @@ namespace Loqu8.KVC.Mac
         {
             // Todo: target could be an IDictionary, IEnumerable or array, in which case access could be different, what if we get things like First/Last
             var type = target.GetType();
-            PropertyInfo info = type.GetProperty(key);
-            return info.GetValue(target, null);
+			PropertyInfo info = type.GetProperty(key);
+			var value = info.GetValue(target, null);
+
+			return value;
         }
     }
 }
