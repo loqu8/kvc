@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Loqu8.KVC.Mac
 {
@@ -75,7 +77,6 @@ namespace Loqu8.KVC.Mac
 				SetValueForKeyPath (value, nsKey);
 			}
 				
-            // should never be called
 			var info = _type.GetProperty(key);
             if (!_isNotifyPropertyChanged) WillChangeValue(nsKey);		// inefficient but oh well... beer first
             info.SetValue(_t, value.ToObject(info.PropertyType), null);
@@ -102,6 +103,18 @@ namespace Loqu8.KVC.Mac
 
                 target = ValueForKey(target, key);
             }
+
+			if (!(target is string) && target is IEnumerable) {			
+				var objs = new List<NSObject> ();
+				var items = (IEnumerable)target;
+				foreach (var item in items) {
+					var wrapped = new KVCWrapper (item);
+
+					objs.Add (wrapped);
+				}
+				return NSArray.FromObjects(objs.ToArray());
+			}
+				
             return target.ToNSObject();
         }
 
@@ -109,6 +122,7 @@ namespace Loqu8.KVC.Mac
         {
 			var key = nsKey.ToString ();
 			if (key.Contains (".")) {
+
 				return ValueForKeyPath (nsKey);
 			}
 
@@ -117,12 +131,22 @@ namespace Loqu8.KVC.Mac
         }
 
         protected static Object ValueForKey(Object target, String key)
-        {
-            // Todo: target could be an IDictionary, IEnumerable or array, in which case access could be different, what if we get things like First/Last
-            var type = target.GetType();
-			PropertyInfo info = type.GetProperty(key);
-			var value = info.GetValue(target, null);
+        {            
+			// TODO: target could be an IDictionary, IEnumerable or array, in which case access could be different, what if we get things like First/Last
 
+			if (target is IEnumerable<object> && key == "Count") {
+				var tolist = (IEnumerable<object>)target;
+				target = tolist.ToList ();
+			}
+
+			var type = target.GetType();
+			PropertyInfo info = type.GetProperty(key);
+
+			Object value = null;
+			if (info != null) {
+				value = info.GetValue (target, null);
+			}
+				
 			return value;
         }
     }
