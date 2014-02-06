@@ -134,6 +134,9 @@ namespace Loqu8.KVC.Mac
 				target = tolist.ToList ();
 			}
 
+			if (target == null && key == "Count")
+				return 0;			// for treeController when we are looking at a null collection
+
 			var type = target.GetType();
 			PropertyInfo info = type.GetProperty(key);
 
