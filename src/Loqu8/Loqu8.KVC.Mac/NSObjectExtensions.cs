@@ -2,21 +2,39 @@ using MonoMac.Foundation;
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Collections;
 
-namespace Loqu8.KVC
+namespace Loqu8.KVC.Mac
 {
     public static class NSObjectExtensions
     {
+		public static NSArray ToKVCNSArray(this IEnumerable target)
+		{
+			var objs = new List<NSObject> ();
+			var items = (IEnumerable)target;
+			foreach (var item in items) {
+				var wrapped = new KVCWrapper (item);
+				objs.Add (wrapped);
+			}
+
+			// Note: objs.ToArray().ToNSObject does not actually work...
+			return NSArray.FromNSObjects(objs.ToArray ());
+		}
+
+		// http://stackoverflow.com/questions/906499/getting-type-t-from-ienumerablet
+		public static Type GetItemType<T>(this IEnumerable<T> enumerable)
+		{
+			return typeof(T);
+		}
+
         public static NSObject ToNSObject(this Object o)
         {
-            if (o is DateTime)
-            {
-                var date = (DateTime)o;
-                NSDate nsDate = DateTime.SpecifyKind(date, DateTimeKind.Utc);
-                return nsDate;
-            }
-            else
-            {
+			if (o is DateTime) {
+				var date = (DateTime)o;
+				NSDate nsDate = DateTime.SpecifyKind (date, DateTimeKind.Utc);
+				return nsDate;
+			} else {
                 return NSObject.FromObject(o);
             }
         }

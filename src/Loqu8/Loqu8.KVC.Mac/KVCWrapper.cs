@@ -103,20 +103,15 @@ namespace Loqu8.KVC.Mac
 
                 target = ValueForKey(target, key);
             }
-
+				
 			if (!(target is string) && target is IEnumerable) {			
-				var objs = new List<NSObject> ();
 				var items = (IEnumerable)target;
-				foreach (var item in items) {
-					var wrapped = new KVCWrapper (item);
-
-					objs.Add (wrapped);
-				}
-				return NSArray.FromObjects(objs.ToArray());
+				return items.ToKVCNSArray ();
 			}
 				
             return target.ToNSObject();
         }
+
 
         public override NSObject ValueForKey(NSString nsKey)
         {
