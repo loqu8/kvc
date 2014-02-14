@@ -147,5 +147,16 @@ namespace Loqu8.KVC.Mac
 				
 			return value;
         }
+
+		[Export("copyWithZone:")]
+		public NSObject CopyWithZone (IntPtr zone)
+		{
+			return new KVCWrapper(_t).Retain ();
+		}
+
+		public override string ToString ()
+		{
+			return base.ToString () + "hello";
+		}
     }
 }
