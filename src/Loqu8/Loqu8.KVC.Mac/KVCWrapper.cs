@@ -86,7 +86,7 @@ namespace Loqu8.KVC.Mac
         public override NSObject ValueForKeyPath(NSString nsKeyPath)
         {
             var keyPath = nsKeyPath.ToString();
-            var keys = keyPath.Split('.');
+			var keys = keyPath.Split('.');
 
             Object target = _t;
             foreach (var key in keys)
@@ -106,7 +106,7 @@ namespace Loqu8.KVC.Mac
 				
 			if (!(target is string) && target is IEnumerable) {			
 				var items = (IEnumerable)target;
-				return items.ToKVCNSArray ();
+				target = items.ToKVCNSArray ();
 			}
 				
             return target.ToNSObject();
@@ -121,14 +121,13 @@ namespace Loqu8.KVC.Mac
 				return ValueForKeyPath (nsKey);
 			}
 
-			var target = ValueForKey(_t, key);		
+			var target = ValueForKey(_t, key);								
             return target.ToNSObject();
         }
-
+					
         protected static Object ValueForKey(Object target, String key)
         {            
 			// TODO: target could be an IDictionary, IEnumerable or array, in which case access could be different, what if we get things like First/Last
-
 			if (target is IEnumerable<object> && key == "Count") {
 				var tolist = (IEnumerable<object>)target;
 				target = tolist.ToList ();
@@ -136,7 +135,7 @@ namespace Loqu8.KVC.Mac
 
 			if (target == null && key == "Count")
 				return 0;			// for treeController when we are looking at a null collection
-
+								
 			var type = target.GetType();
 			PropertyInfo info = type.GetProperty(key);
 
@@ -147,6 +146,14 @@ namespace Loqu8.KVC.Mac
 				
 			return value;
         }
+			
+//		[Export("count")]
+//		public int Count
+//		{
+//			get {
+//				return 0;
+//			}
+//		}
 
 		[Export("copyWithZone:")]
 		public NSObject CopyWithZone (IntPtr zone)
