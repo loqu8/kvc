@@ -165,5 +165,13 @@ namespace Loqu8.KVC.Mac
 		{
 			return base.ToString () + "hello";
 		}
+
+		public object Base {
+			get { return _t; }
+		}
+
+		public object BaseType {
+			get { return _type; }
+		}
     }
 }
