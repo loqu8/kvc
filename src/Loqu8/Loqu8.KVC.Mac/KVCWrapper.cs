@@ -95,7 +95,7 @@ namespace Loqu8.KVC.Mac
                 {
                     var dict = (IDictionary)target;
                     if (!dict.Contains(key))
-                        return null;
+						return null;		// if we return a null we will see <null>
 
                     target = dict[key];
                     continue;
@@ -108,6 +108,9 @@ namespace Loqu8.KVC.Mac
 				var items = (IEnumerable)target;
 				target = items.ToKVCNSArray ();
 			}
+
+			if (target == null)
+				return null;
 				
             return target.ToNSObject();
         }
@@ -155,6 +158,8 @@ namespace Loqu8.KVC.Mac
 //			}
 //		}
 
+
+
 		[Export("copyWithZone:")]
 		public NSObject CopyWithZone (IntPtr zone)
 		{
@@ -163,7 +168,7 @@ namespace Loqu8.KVC.Mac
 
 		public override string ToString ()
 		{
-			return base.ToString () + "hello";
+			return base.ToString ();
 		}
 
 		public object Base {
